@@ -1,7 +1,7 @@
 import { defineConfig } from 'dumi';
 
 //github仓库名称
-const repo = 'ez-modal-react-book';
+const repo = 'ez-store';
 
 const isProd = process.env.NODE_ENV === 'production';
 
