@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "lib": ["ES2015","DOM"],
+    "module": "esnext",
+    "strict": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "noUnusedLocals": true,
+    "noImplicitAny": true,
+    "allowJs": true,
+    "noEmit": true,
+    "outDir": "dist",
+    "resolveJsonModule": true,
+  }
+}
