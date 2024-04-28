@@ -15,7 +15,7 @@ hero:
 // cacheSource file
 import EzStore from '@easyevery/ez-store';
 
-export const c = EzStore.createLocal<boolean>('key', {
+export const createLocal = EzStore.createLocal<boolean>('key', {
   prefix: '平台A',
   expire: -1, // 永不过期，默认一年
 });
