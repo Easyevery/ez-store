@@ -34,9 +34,5 @@
     "build": "pnpm run build-fast -- --dts-resolve",
     "build-fast": "tsup src/index.ts --format esm",
     "prepublishOnly": "pnpm run build"
-  },
-  "devDependencies": {
-    "tsup": "^8.0.0",
-    "typescript": "^4.0.0"
   }
 }

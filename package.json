@@ -1,7 +1,7 @@
 {
   "name": "ez-store",
   "version": "0.0.1",
-  "description": "A react library developed with dumi",
+  "description": "以简单，统一的方式使用localStorage、sessionStorage、内存对象。",
   "license": "MIT",
   "main": "./dist/lib/index.js",
   "module": "./dist/es/index.js",
@@ -67,12 +67,7 @@
     "stylelint": "^14.9.1",
     "tsup": "^8.0.0"
   },
-  "peerDependencies": {
-    "react": ">=16.9.0",
-    "react-dom": ">=16.9.0"
-  },
   "publishConfig": {
     "access": "public"
-  },
-  "authors": []
+  }
 }
