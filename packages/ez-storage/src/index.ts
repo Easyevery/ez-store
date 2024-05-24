@@ -151,9 +151,9 @@ const createAsync = <T>(cacheType: IStorageType, key: string, options: IAsyncSto
 const createMemory = <T = any>(key: string, options: IStorageOptions = {}) => createImp<T>('memory', key, options);
 const createLocal = <T = any>(key: string, options: IStorageOptions = {}) => createImp<T>('localStorage', key, options);
 const createSession = <T = any>(key: string, options: IStorageOptions = {}) => createImp<T>('sessionStorage', key, options);
+const createAsyncMemory = <T = any>(key: string, options: IAsyncStorageOptions<T> = {}) => createAsync<T>('memory', key, options);
 const createAsyncLocal = <T = any>(key: string, options: IAsyncStorageOptions<T> = {}) => createAsync<T>('localStorage', key, options);
 const createAsyncSession = <T = any>(key: string, options: IAsyncStorageOptions<T> = {}) => createAsync<T>('sessionStorage', key, options);
-const createAsyncMemory = <T = any>(key: string, options: IAsyncStorageOptions<T> = {}) => createAsync<T>('memory', key, options);
 
 const EzStore = {
   /**
@@ -167,9 +167,9 @@ const EzStore = {
    * @description async method
    */
   createAsync,
+  createAsyncMemory,
   createAsyncLocal,
   createAsyncSession,
-  createAsyncMemory,
   /**
    * @description preset timeSpan
    */
@@ -177,6 +177,7 @@ const EzStore = {
 };
 
 export { TimeSpan };
-export { createMemory, createLocal, createSession, createAsyncLocal, createAsyncSession, createAsyncMemory, createCache, createAsync };
+export type EzStoreInstance = ReturnType<typeof createCache | typeof createAsync>;
+export { createCache, createMemory, createLocal, createSession, createAsync, createAsyncMemory, createAsyncLocal, createAsyncSession };
 
 export default EzStore;

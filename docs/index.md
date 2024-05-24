@@ -8,3 +8,107 @@ hero:
     - text: Github
       link: https://github.com/Easyevery/ez-store
 ---
+
+## 全部用法
+
+```tsx | pure
+// cacheSource file
+import EzStore from '@easyevery/ez-store';
+
+export const activeCache = EzStore.createLocal<boolean>('key', {
+  prefix: '平台A',
+  expire: -1, // 永不过期，默认一年
+});
+
+export const asyncCache = EzStore.createSession('test', {
+  getter: async () => {
+    return Promise.resolve({ id: 1 });
+  },
+});
+
+// 在任意地方使用
+import { activeCache, asyncCache } from './cacheSource';
+activeCache.set(true);
+activeCache.get();
+activeCache.remove();
+activeCache.name;
+
+// 使用异步的缓存
+await asyncCache.get();
+await asyncCache.set({ id: 2 });
+```
+
+## 设置过期
+
+```tsx | pure
+export const activeBCache = EzStore.createLocal<boolean>('key', {
+  prefix: '平台A',
+  expire: dayjs().add('day', 1).valueOf(), // 1天后过期
+});
+
+export const activeBCache = EzStore.createLocal<boolean>('key', {
+  prefix: '平台A',
+  expire: EzStore.TimeSpan.day * 2, // 2天后过期
+});
+```
+
+## interface: 统一的出入参，以及支持异步的方法
+
+```tsx | pure
+// 同步的
+function createLocal<T = any>(key, options);
+function createSession<T = any>(key, options);
+function createMemory<T = any>(
+  key: string,
+  options?: {
+    prefix?: string;
+    version?: number;
+    expire?: number;
+  },
+): Readonly<{
+  name: string;
+  get: () => T | null;
+  set: (value: T) => boolean;
+  remove: () => boolean;
+}>;
+
+// 异步的
+function createAsyncLocal<T = any>(key, options);
+function createSession<T = any>(key, options);
+function createAsyncMemory<T = any>(
+  key: string,
+  options?: {
+    prefix?: string;
+    version?: number;
+    expire?: number;
+    getter?: (params: P) => Promise<T>;
+    setter?: (value: T) => Promise<T>;
+  },
+): Readonly<{
+  name: string;
+  get: () => T | null;
+  set: (value: T) => boolean;
+  remove: () => boolean;
+}>;
+
+// 动态创建：传入额外的 type "localStorage" | "sessionStorage" | "memory" 即可选择创建的缓存基于哪个类型
+function createCache<T = any>(type, key, options): EzCache;
+function createAsync<T = any>(type, key, options): EzCache;
+
+// 内置一个时间戳枚举
+enum TimeSpan {
+  second = 1000,
+  minute = 60 * 1000,
+  hour = 3600 * 1000,
+  day = 24 * 3600 * 1000,
+  week = 7 * 24 * 3600 * 1000,
+  month = 30 * 24 * 3600 * 1000,
+  year = 365 * 24 * 3600 * 1000,
+}
+```
+
+## 安装
+
+```bash | pure
+npm i @easyevery/ez-store
+```
