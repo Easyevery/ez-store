@@ -123,6 +123,15 @@ enum TimeSpan {
 
 ```tsx | pure
 type StoreType = 'localStorage' | 'sessionStorage' | 'memory';
+
+function SyncCacheImp<T = any>(
+  type: StoreType,
+  key: string,
+  options?: IStoreOptions & {
+    getter?: ((params: any) => Promise<T>) | (() => null);
+    setter?: ((value: T) => Promise<T>) | ((val: T) => T);
+  },
+): Cache;
 ```
 
 <!-- prettier-ignore -->
