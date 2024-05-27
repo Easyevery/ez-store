@@ -147,12 +147,12 @@ const createAsync = <T>(cacheType: StoreType, key: string, options: AsyncStoreOp
   });
 };
 
-const createMemory = <T = any>(key: string, options: StoreOptions) => createImp<T>('memory', key, options);
-const createLocal = <T = any>(key: string, options: StoreOptions) => createImp<T>('localStorage', key, options);
-const createSession = <T = any>(key: string, options: StoreOptions) => createImp<T>('sessionStorage', key, options);
-const createAsyncMemory = <T = any>(key: string, options: AsyncStoreOptions<T>) => createAsync<T>('memory', key, options);
-const createAsyncLocal = <T = any>(key: string, options: AsyncStoreOptions<T>) => createAsync<T>('localStorage', key, options);
-const createAsyncSession = <T = any>(key: string, options: AsyncStoreOptions<T>) => createAsync<T>('sessionStorage', key, options);
+const createMemory = <T = any>(key: string, options?: StoreOptions) => createImp<T>('memory', key, options);
+const createLocal = <T = any>(key: string, options?: StoreOptions) => createImp<T>('localStorage', key, options);
+const createSession = <T = any>(key: string, options?: StoreOptions) => createImp<T>('sessionStorage', key, options);
+const createAsyncMemory = <T = any>(key: string, options?: AsyncStoreOptions<T>) => createAsync<T>('memory', key, options);
+const createAsyncLocal = <T = any>(key: string, options?: AsyncStoreOptions<T>) => createAsync<T>('localStorage', key, options);
+const createAsyncSession = <T = any>(key: string, options?: AsyncStoreOptions<T>) => createAsync<T>('sessionStorage', key, options);
 
 const EzStore = {
   /**
