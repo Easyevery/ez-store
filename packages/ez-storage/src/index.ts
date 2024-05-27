@@ -1,16 +1,16 @@
-type IStorageType = 'localStorage' | 'sessionStorage' | 'memory';
+type StoreType = 'localStorage' | 'sessionStorage' | 'memory';
 
-type IStorageOptions = {
+type StoreOptions = {
   prefix?: string;
   version?: number;
   expire?: number;
 };
 
-type IStorageRaw<T> = IStorageOptions & {
+type StorageRaw<T> = StoreOptions & {
   value: T;
 };
 
-type IAsyncStorageOptions<T, P = any> = IStorageOptions & {
+type AsyncStoreOptions<T, P = any> = StoreOptions & {
   getter?: (params: P) => Promise<T>;
   setter?: (value: T) => Promise<T>;
 };
@@ -39,7 +39,7 @@ const memoryStorage = Object.freeze({
   },
 });
 
-const getInstance = (type: IStorageType): Storage | typeof memoryStorage => {
+const getInstance = (type: StoreType): Storage | typeof memoryStorage => {
   switch (type) {
     case 'localStorage':
     case 'sessionStorage':
@@ -58,7 +58,7 @@ const isExpire = (expire?: number) => {
   return false;
 };
 
-const getStorageImp = (type: IStorageType) => {
+const getStorageImp = (type: StoreType) => {
   const storage = getInstance(type);
 
   return {
@@ -95,7 +95,7 @@ const getStorageImp = (type: IStorageType) => {
   };
 };
 
-const createImp = <T>(type: IStorageType, key: string, options: IStorageOptions = {}) => {
+const createImp = <T>(type: StoreType, key: string, options: StoreOptions = {}) => {
   const storageImp = getStorageImp(type);
 
   if (!storageImp) throw new Error('getStorageImp error!');
@@ -109,51 +109,50 @@ const createImp = <T>(type: IStorageType, key: string, options: IStorageOptions 
   return Object.freeze({
     name,
     get: () => {
-      const raw = storageImp.get<IStorageRaw<T>>(name);
+      const raw = storageImp.get<StorageRaw<T>>(name);
       if (isExpire(raw?.expire)) {
         storageImp.remove(name);
         return null;
       }
       return raw ? raw.value : null;
     },
-    set: (value: T) => storageImp.set<IStorageRaw<T>>(name, { ...options, value }),
+    set: (value: T) => storageImp.set<StorageRaw<T>>(name, { ...options, value }),
     remove: () => storageImp.remove(name),
   });
 };
 
-const createCache = <T = any>(type: IStorageType, key: string, options: IStorageOptions = {}) => createImp<T>(type, key, options);
+const createCache = <T = any>(type: StoreType, key: string, options: StoreOptions = {}) => createImp<T>(type, key, options);
 
-const createAsync = <T>(cacheType: IStorageType, key: string, options: IAsyncStorageOptions<T> = {}) => {
+const createAsync = <T>(cacheType: StoreType, key: string, options: AsyncStoreOptions<T> = {}) => {
   const cache = createCache(cacheType, key, options);
 
   const getter = typeof options.getter === 'function' ? options.getter : () => null;
-  const setter = typeof options.setter === 'function' ? options.setter : null;
+  const setter = typeof options.setter === 'function' ? options.setter : (val: T) => val;
 
   return Object.freeze({
     name: key,
     get: async (params?: Parameters<typeof getter>) => {
       const raw = cache.get();
-
       if (raw) return raw;
 
       const value = await getter(params);
       cache.set(value);
+
       return value;
     },
     set: async (value: T) => {
-      if (setter) await setter(value);
-      else cache.set(value);
+      cache.set(await setter(value));
     },
     remove: () => cache.remove(),
   });
 };
 
-const createMemory = <T = any>(key: string, options: IStorageOptions = {}) => createImp<T>('memory', key, options);
-const createLocal = <T = any>(key: string, options: IStorageOptions = {}) => createImp<T>('localStorage', key, options);
-const createSession = <T = any>(key: string, options: IStorageOptions = {}) => createImp<T>('sessionStorage', key, options);
-const createAsyncMemory = <T = any>(key: string, options: IAsyncStorageOptions<T> = {}) => createAsync<T>('memory', key, options);
-const createAsyncLocal = <T = any>(key: string, options: IAsyncStorageOptions<T> = {}) => createAsync<T>('localStorage', key, options);
-const createAsyncSession = <T = any>(key: string, options: IAsyncStorageOptions<T> = {}) => createAsync<T>('sessionStorage', key, options);
+const createMemory = <T = any>(key: string, options: StoreOptions) => createImp<T>('memory', key, options);
+const createLocal = <T = any>(key: string, options: StoreOptions) => createImp<T>('localStorage', key, options);
+const createSession = <T = any>(key: string, options: StoreOptions) => createImp<T>('sessionStorage', key, options);
+const createAsyncMemory = <T = any>(key: string, options: AsyncStoreOptions<T>) => createAsync<T>('memory', key, options);
+const createAsyncLocal = <T = any>(key: string, options: AsyncStoreOptions<T>) => createAsync<T>('localStorage', key, options);
+const createAsyncSession = <T = any>(key: string, options: AsyncStoreOptions<T>) => createAsync<T>('sessionStorage', key, options);
 
 const EzStore = {
   /**
