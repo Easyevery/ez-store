@@ -399,13 +399,7 @@
     border-radius: `,`px !important;
     box-shadow: `,`;
   }
-
-  @media (max-width: 575px) {
-    .`,`-tooltip {
-      display: none !important;
-    }
-  }
-`])),e.prefixCls,(0,de.XV)(e.colorPrimary),e.prefixCls,e.prefixCls,(0,de.XV)(e.colorPrimary),(0,de.XV)(e.colorPrimary),(0,de.XV)(e.colorPrimaryActive),e.prefixCls,e.colorBgLayout,e.colorText,e.borderRadiusSM,e.prefixCls,e.colorText,e.prefixCls,e.colorBgContainer,e.prefixCls,e.prefixCls,e.prefixCls,e.stylish.blur,e.borderRadiusLG,(0,de.m4)(e.colorBgMask,.1),e.prefixCls,e.colorBorderSecondary,e.boxShadowSecondary,e.prefixCls,e.colorBorderSecondary,e.borderRadius,e.boxShadowSecondary,e.prefixCls)},tn,kt=function(e){return(0,v.iv)(tn||(tn=(0,S.Z)([`
+`])),e.prefixCls,(0,de.XV)(e.colorPrimary),e.prefixCls,e.prefixCls,(0,de.XV)(e.colorPrimary),(0,de.XV)(e.colorPrimary),(0,de.XV)(e.colorPrimaryActive),e.prefixCls,e.colorBgLayout,e.colorText,e.borderRadiusSM,e.prefixCls,e.colorText,e.prefixCls,e.colorBgContainer,e.prefixCls,e.prefixCls,e.prefixCls,e.stylish.blur,e.borderRadiusLG,(0,de.m4)(e.colorBgMask,.1),e.prefixCls,e.colorBorderSecondary,e.boxShadowSecondary,e.prefixCls,e.colorBorderSecondary,e.borderRadius,e.boxShadowSecondary)},tn,kt=function(e){return(0,v.iv)(tn||(tn=(0,S.Z)([`
   :root {
     --font-settings: 'cv01', 'tnum', 'kern';
     --font-variations: 'opsz' auto, tabular-nums;
