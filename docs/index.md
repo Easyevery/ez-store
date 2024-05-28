@@ -118,7 +118,7 @@ enum TimeSpan {
 | 参数 | 说明 | 类型 | 默认值 | 版本 |
 | -------- | ------------ | ------------ | ------ | ------ |
 | key      | 缓存的key     | `string`     |     -  |   -    |
-| options  | 缓存的key     | <a>IStoreOptions</a>   |     -  |   -    |
+| options  | 缓存的options     | <a>IStoreOptions</a>   |     -  |   -    |
 
 ### 2.内置方法：基于缓存类型创建缓存项
 
@@ -138,10 +138,10 @@ function SyncCacheImp<T = any>(
 <!-- prettier-ignore -->
 | 方法 | 说明 | 类型 | 默认值 | 版本 |
 | -------- | ------------ | ------------ | ------ | ------ |
-| createCache| 根据<a>type</a>创建同步的缓存     | <a>SyncCacheImp</a>     |     -  |   -    |
-| createAsync| 根据<a>type</a>创建异步的缓存     | <a>SyncCacheImp</a>     |     -  |   -    |
+| createSyncCache| 根据<a>type</a>创建同步的缓存     | <a>SyncCacheImp</a>     |     -  |   -    |
+| createAsyncCache| 根据<a>type</a>创建异步的缓存     | <a>SyncCacheImp</a>     |     -  |   -    |
 
-相比 **createLocal、createAsyncLocal** 等方法，只是多了第一个参数 `type` ，但返回值相同。
+相比 **createLocal、createAsyncLocal** 等方法，只是多了第一个参数 `type` ，但返回值都是缓存项`Cache`。
 
 #### 入参
 
@@ -150,9 +150,16 @@ function SyncCacheImp<T = any>(
 | -------- | -------------| ------------ | ------ | ------ |
 | type     | 缓存的类型     | <a>StoreType</a>     |     -  |   -    |
 | key      | 缓存的key     | <a>string</a>          |     -  |   -    |
-| options  | 缓存的key     | <a>IStoreOptions</a>   |     -  |   -    |
+| options  | 缓存的options     | <a>IStoreOptions</a>   |     -  |   -    |
 
-### 3. 缓存项方法
+### 3.内置方法：设置全局统一前缀 setConfig
+
+<!-- prettier-ignore -->
+| 参数 | 说明 | 类型 | 默认值 | 版本 |
+| -------- | -------------| ------------ | ------ | ------ |
+| options  | options     | <a>{prefix:string}</a>   |     -  |   -    |
+
+### 4. 缓存项的属性和方法
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 | 版本 |
