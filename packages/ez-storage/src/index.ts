@@ -2,16 +2,15 @@ type StoreType = 'localStorage' | 'sessionStorage' | 'memory';
 
 type StoreOptions = {
   prefix?: string;
-  version?: number;
   expire?: number;
 };
 
-type StorageRaw<T> = StoreOptions & {
+type StoreRaw<T> = StoreOptions & {
   value: T;
 };
 
-type AsyncStoreOptions<T, P = any> = StoreOptions & {
-  getter?: (params: P) => Promise<T>;
+type AsyncStoreOptions<T> = StoreOptions & {
+  getter?: () => Promise<T>;
   setter?: (value: T) => Promise<T>;
 };
 
@@ -27,26 +26,26 @@ enum TimeSpan {
 
 const memory = new Map();
 
-const memoryStorage = Object.freeze({
-  getItem: function <T = any>(key: any): T | null {
+const memoryStore = Object.freeze({
+  getItem: function (key: string) {
     return memory.get(key);
   },
-  setItem: function <T = any>(key: any, value: T) {
+  setItem: function (key: string, value: any) {
     memory.set(key, value);
   },
-  removeItem: function (key: any): boolean {
+  removeItem: function (key: string): boolean {
     return memory.delete(key);
   },
 });
 
-const getInstance = (type: StoreType): Storage | typeof memoryStorage => {
+const getStoreInstance = (type: StoreType): Storage | typeof memoryStore => {
   switch (type) {
     case 'localStorage':
     case 'sessionStorage':
       return window[type];
     case 'memory':
     default:
-      return memoryStorage;
+      return memoryStore;
   }
 };
 
@@ -58,13 +57,21 @@ const isExpire = (expire?: number) => {
   return false;
 };
 
-const getStorageImp = (type: StoreType) => {
-  const storage = getInstance(type);
+const globalConfig: Required<Pick<StoreOptions, 'prefix'>> = {
+  prefix: '@@ez-store',
+};
+
+const setConfig = (options: Partial<Pick<StoreOptions, 'prefix'>> = {}): Required<Pick<StoreOptions, 'prefix'>> => {
+  return Object.assign(globalConfig, options);
+};
+
+const getStoreImp = (type: StoreType) => {
+  const store = getStoreInstance(type);
 
   return {
     set: function <T = any>(key: string, value: T): boolean {
       try {
-        storage.setItem(key, (type === 'memory' ? value : JSON.stringify(value)) as any);
+        store.setItem(key, (type === 'memory' ? value : JSON.stringify(value)) as any);
         return true;
       } catch (error) {
         console.error('Error storing data:', error);
@@ -72,20 +79,20 @@ const getStorageImp = (type: StoreType) => {
       }
     },
 
-    get: function <T = any>(key: string): T | null {
+    get: function <T = any>(key: string): T {
       try {
-        const value = storage.getItem(key);
+        const value = store.getItem(key);
         if (type === 'memory') return value;
-        return value ? JSON.parse(value as any) : null;
+        return value ? JSON.parse(value as any) : (null as T);
       } catch (error) {
         console.error('Error getting data:', error);
-        return null;
+        return null as T;
       }
     },
 
     remove: function (key: string): boolean {
       try {
-        storage.removeItem(key);
+        store.removeItem(key);
         return true;
       } catch (error) {
         console.error('Error removing data:', error);
@@ -95,54 +102,55 @@ const getStorageImp = (type: StoreType) => {
   };
 };
 
-const createImp = <T>(type: StoreType, key: string, options: StoreOptions = {}) => {
-  const storageImp = getStorageImp(type);
+const createImp = <T>(type: StoreType, name: string, options: StoreOptions = {}) => {
+  const storeImp = getStoreImp(type);
 
-  if (!storageImp) throw new Error('getStorageImp error!');
+  if (!name) throw new Error('name invalid!');
+  if (!type) throw new Error('type invalid!');
+  if (!storeImp) throw new Error('getStoreImp!');
 
-  let name = key;
-
-  if (options.prefix) name = `${options.prefix}_${key}`;
-
+  if (!options.prefix) options.prefix = globalConfig.prefix;
   if (!options.expire) options.expire = getDefaultExpire();
+
+  const key = `${options.prefix}_${name}`;
 
   return Object.freeze({
     name,
+    key,
     get: () => {
-      const raw = storageImp.get<StorageRaw<T>>(name);
+      const raw = storeImp.get<StoreRaw<T>>(key);
       if (isExpire(raw?.expire)) {
-        storageImp.remove(name);
-        return null;
+        storeImp.remove(key);
+        return null as T;
       }
-      return raw ? raw.value : null;
+      return raw ? raw.value : (null as T);
     },
-    set: (value: T) => storageImp.set<StorageRaw<T>>(name, { ...options, value }),
-    remove: () => storageImp.remove(name),
+    set: (value: T) => storeImp.set<StoreRaw<T>>(key, { ...options, value }),
+    remove: () => storeImp.remove(key),
   });
 };
 
-const createCache = <T = any>(type: StoreType, key: string, options: StoreOptions = {}) => createImp<T>(type, key, options);
+const createSyncCache = <T = any>(type: StoreType, key: string, options: StoreOptions = {}) => createImp<T>(type, key, options);
 
-const createAsync = <T>(cacheType: StoreType, key: string, options: AsyncStoreOptions<T> = {}) => {
-  const cache = createCache(cacheType, key, options);
+const createAsyncCache = <T>(type: StoreType, key: string, options: AsyncStoreOptions<T> = {}) => {
+  const cache = createSyncCache<T>(type, key, options);
 
-  const getter = typeof options.getter === 'function' ? options.getter : () => null;
+  const getter = typeof options.getter === 'function' ? options.getter : () => null as T;
   const setter = typeof options.setter === 'function' ? options.setter : (val: T) => val;
 
   return Object.freeze({
     name: key,
-    get: async (params?: Parameters<typeof getter>) => {
+    get: async () => {
       const raw = cache.get();
       if (raw) return raw;
 
-      const value = await getter(params);
-      cache.set(value);
+      const value = await getter();
+
+      if (value) cache.set(value);
 
       return value;
     },
-    set: async (value: T) => {
-      cache.set(await setter(value));
-    },
+    set: async (value: T) => cache.set(await setter(value)),
     remove: () => cache.remove(),
   });
 };
@@ -150,22 +158,22 @@ const createAsync = <T>(cacheType: StoreType, key: string, options: AsyncStoreOp
 const createMemory = <T = any>(key: string, options?: StoreOptions) => createImp<T>('memory', key, options);
 const createLocal = <T = any>(key: string, options?: StoreOptions) => createImp<T>('localStorage', key, options);
 const createSession = <T = any>(key: string, options?: StoreOptions) => createImp<T>('sessionStorage', key, options);
-const createAsyncMemory = <T = any>(key: string, options?: AsyncStoreOptions<T>) => createAsync<T>('memory', key, options);
-const createAsyncLocal = <T = any>(key: string, options?: AsyncStoreOptions<T>) => createAsync<T>('localStorage', key, options);
-const createAsyncSession = <T = any>(key: string, options?: AsyncStoreOptions<T>) => createAsync<T>('sessionStorage', key, options);
+const createAsyncMemory = <T = any>(key: string, options?: AsyncStoreOptions<T>) => createAsyncCache<T>('memory', key, options);
+const createAsyncLocal = <T = any>(key: string, options?: AsyncStoreOptions<T>) => createAsyncCache<T>('localStorage', key, options);
+const createAsyncSession = <T = any>(key: string, options?: AsyncStoreOptions<T>) => createAsyncCache<T>('sessionStorage', key, options);
 
 const EzStore = {
   /**
    * @description sync method
    */
-  createCache,
+  createSyncCache,
   createMemory,
   createLocal,
   createSession,
   /**
    * @description async method
    */
-  createAsync,
+  createAsyncCache,
   createAsyncMemory,
   createAsyncLocal,
   createAsyncSession,
@@ -173,10 +181,23 @@ const EzStore = {
    * @description preset timeSpan
    */
   TimeSpan,
+  /**
+   * @description set globalConfig
+   */
+  setConfig,
 };
 
 export { TimeSpan };
-export type EzStoreInstance = ReturnType<typeof createCache | typeof createAsync>;
-export { createCache, createMemory, createLocal, createSession, createAsync, createAsyncMemory, createAsyncLocal, createAsyncSession };
+export type EzStoreInstance<T> = ReturnType<typeof createSyncCache<T> | typeof createAsyncCache<T>>;
+export {
+  createSyncCache,
+  createMemory,
+  createLocal,
+  createSession,
+  createAsyncCache,
+  createAsyncMemory,
+  createAsyncLocal,
+  createAsyncSession,
+};
 
 export default EzStore;
