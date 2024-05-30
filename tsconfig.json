@@ -8,9 +8,8 @@
     "baseUrl": "./",
     "paths": {
       "@@/*": [".dumi/tmp/*"],
-      "ez-store": ["src"],
-      "ez-store/*": ["src/*", "*"]
+      "@easyevery/ez-store": ["./packages/ez-storage/src"]
     }
   },
-  "include": [".dumirc.ts", "src/**/*"]
+  "include": [".dumirc.ts", "src/**/*", "demo/**/*"]
 }
