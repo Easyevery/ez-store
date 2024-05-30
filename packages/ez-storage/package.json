@@ -1,13 +1,14 @@
 {
   "name": "@easyevery/ez-store",
   "title": "ez-store",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "description": "a storage library",
   "author": {
     "name": "raotaohub",
     "email": "raotao@outlook.com",
     "url": "https://github.com/raotaohub"
   },
+  "homepage": "https://easyevery.github.io/ez-store",
   "repository": {
     "type": "git",
     "url": "https://github.com/easyevery/ez-store"
@@ -20,7 +21,7 @@
     }
   },
   "files": [
-    "dist"
+    "/dist"
   ],
   "type": "module",
   "main": "./dist/index.js",
